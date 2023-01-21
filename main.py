@@ -6,6 +6,7 @@ import pygame as pg
 # 2 = Door
 # 3 = Window
 # 4 = Bench
+# 5 = Door => Cadena
 # 6 = Nama
 STATE = 0
 
@@ -29,6 +30,8 @@ images = {
     "return": pg.transform.scale(pg.image.load("images/Return.png"), (70, 50)),
     "bench": pg.transform.scale(pg.image.load("images/Bench.png"), (700, 700)),
     "nama": pg.transform.scale(pg.image.load("images/Nama.jpg"), (700, 700)),
+    "cadena_small": pg.transform.scale(pg.image.load("images/Cadena.png"), (40, 40)),
+    "cadena_big": pg.transform.scale(pg.image.load("images/Cadena.png"), (700, 700)),
 }
 
 font = pg.font.Font(None, 30)
@@ -50,6 +53,8 @@ positions = {
     "bench_center": (50,50),
     "nama": [(230, 220), (318, 306)],
     "nama_center": (50,50),
+    "cadena_small": [(275, 430), (315, 470)],
+    "cadena_big": (50, 50),
 }
 
 # Password
@@ -62,6 +67,7 @@ mouse_x, mouse_y = 0, 0
 def is_inside(element):
     pos = positions[element]
     return (pos[0][0] <= mouse_x <= pos[1][0]) and (pos[0][1] <= mouse_y <= pos[1][1])
+
 
 def state0(is_mouse_down):
     global STATE
@@ -81,13 +87,9 @@ def state0(is_mouse_down):
 def state1(is_mouse_down):
     global STATE
     # Check if on door
-    is_on_door = False
     if is_inside("door") and is_mouse_down:
         STATE = 2
         return
-    # The Game
-
-    is_on_window = False
     if is_inside("window") and is_mouse_down:
         STATE = 3
         return
@@ -103,11 +105,20 @@ def state2(is_mouse_down):
     global STATE
     # Draw the door
     screen.blit(images["door"], positions["door_center"])
+    # Draw the cadena
+    screen.blit(images["cadena_small"], positions["cadena_small"][0])
     # Draw the return button
     screen.blit(images["return"], positions["return"])
     # Check return
     if is_inside("return") and is_mouse_down:
         STATE = 1
+        return
+    # Check cadena
+    is_on_cadena = False
+    if (positions["cadena_small"][0][0] <= mouse_x <= positions["cadena_small"][1][0]) and (positions["cadena_small"][0][1] <= mouse_y <= positions["cadena_small"][1][1]):
+        is_on_cadena = True
+    if is_inside("cadena_small") and is_mouse_down:
+        STATE = 5
         return
 
 
@@ -130,15 +141,32 @@ def state3(is_mouse_down):
         STATE = 6
         return
 
+
 def state4(is_mouse_down):
     global STATE
     screen.blit(images["bench"], positions["bench_center"])
-    
+
     screen.blit(images["return"], positions["return"])
     # Check return
     if is_inside("return") and is_mouse_down:
         STATE = 3
         return
+
+
+def state5(is_mouse_down):
+    global STATE
+    # Draw the door
+    screen.blit(images["door"], positions["door_center"])
+    # Draw the cadenas
+    screen.blit(images["cadena_small"], positions["cadena_small"][0])
+    screen.blit(images["cadena_big"], positions["cadena_big"])
+    # Draw the return button
+    screen.blit(images["return"], positions["return"])
+    # Check return
+    if is_inside("return") and is_mouse_down:
+        STATE = 2
+        return
+
 
 def state6(is_mouse_down):
     global STATE
@@ -150,6 +178,7 @@ def state6(is_mouse_down):
     if is_inside("return") and is_mouse_down:
         STATE = 3
         return
+
 
 # Boucle principale
 while True:
@@ -199,6 +228,8 @@ while True:
         state3(is_mouse_down)
     elif STATE == 4:
         state4(is_mouse_down)
+    elif STATE == 5:
+        state5(is_mouse_down)
     elif STATE == 6:
         state6(is_mouse_down)
     # Print mouse position
