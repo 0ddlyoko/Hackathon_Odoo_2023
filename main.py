@@ -28,6 +28,7 @@ images = {
     "window": pg.transform.scale(pg.image.load("images/Window.png"), (700, 700)),
     "return": pg.transform.scale(pg.image.load("images/Return.png"), (70, 50)),
     "bench": pg.transform.scale(pg.image.load("images/Bench.png"), (700, 700)),
+    "nama": pg.transform.scale(pg.image.load("images/Nama.jpg"), (700, 700)),
 }
 
 font = pg.font.Font(None, 30)
@@ -47,6 +48,8 @@ positions = {
     "return": [(700, 25), (770, 75)],
     "bench": [(278, 379), (572, 600)],
     "bench_center": (50,50),
+    "nama": [(230, 220), (318, 306)],
+    "nama_center": (50,50),
 }
 
 # Password
@@ -122,7 +125,10 @@ def state3(is_mouse_down):
     if is_inside("bench") and is_mouse_down:
         STATE = 4
         return
-
+    
+    if is_inside("nama") and is_mouse_down:
+        STATE = 6
+        return
 
 def state4(is_mouse_down):
     global STATE
@@ -131,7 +137,18 @@ def state4(is_mouse_down):
     screen.blit(images["return"], positions["return"])
     # Check return
     if is_inside("return") and is_mouse_down:
-        STATE = 1
+        STATE = 3
+        return
+
+def state6(is_mouse_down):
+    global STATE
+    # Draw the door
+    screen.blit(images["nama"], positions["nama_center"])
+    # Draw the return button
+    screen.blit(images["return"], positions["return"])
+    # Check return
+    if is_inside("return") and is_mouse_down:
+        STATE = 3
         return
 
 # Boucle principale
@@ -174,14 +191,16 @@ while True:
 
     if STATE == 0:
         state0(is_mouse_down)
-    if STATE == 1:
+    elif STATE == 1:
         state1(is_mouse_down)
-    if STATE == 2:
+    elif STATE == 2:
         state2(is_mouse_down)
-    if STATE == 3:
+    elif STATE == 3:
         state3(is_mouse_down)
-    if STATE == 4:
+    elif STATE == 4:
         state4(is_mouse_down)
+    elif STATE == 6:
+        state6(is_mouse_down)
     # Print mouse position
     screen.blit(font.render(f"{mouse_x} - {mouse_y}", True, (255, 255, 255)), (400, 20))
 
