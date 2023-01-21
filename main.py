@@ -40,7 +40,7 @@ images = {
 font = pg.font.Font(None, 30)
 
 texts = {
-    "password": "1. It's dangerous to go alone. %s this.",
+    "password": "2. It's dangerous to go alone. %s this.",
     "escaped": font.render("You escaped!", True, (0, 0, 0)),
 }
 
