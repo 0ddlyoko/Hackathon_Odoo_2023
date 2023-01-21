@@ -4,6 +4,9 @@ import pygame as pg
 # 0 = Login
 # 1 = Logged
 # 2 = Door
+# 3 = Window
+# 4 = Bench
+# 6 = Nama
 STATE = 0
 
 # Initialisation de PyGame
@@ -76,17 +79,13 @@ def state1(is_mouse_down):
     global STATE
     # Check if on door
     is_on_door = False
-    if is_inside("door"):
-        is_on_door = True
-    if is_on_door and is_mouse_down:
+    if is_inside("door") and is_mouse_down:
         STATE = 2
         return
     # The Game
 
     is_on_window = False
-    if is_inside("window"):
-        is_on_window = True
-    if is_on_window and is_mouse_down:
+    if is_inside("window") and is_mouse_down:
         STATE = 3
         return
     # The Game
@@ -104,10 +103,7 @@ def state2(is_mouse_down):
     # Draw the return button
     screen.blit(images["return"], positions["return"])
     # Check return
-    is_on_return = False
-    if is_inside("return"):
-        is_on_return = True
-    if is_on_return and is_mouse_down:
+    if is_inside("return") and is_mouse_down:
         STATE = 1
         return
 
@@ -119,17 +115,11 @@ def state3(is_mouse_down):
     
     screen.blit(images["return"], positions["return"])
     # Check return
-    is_on_return = False
-    if is_inside("return"):
-        is_on_return = True
-    if is_on_return and is_mouse_down:
+    if is_inside("return") and is_mouse_down:
         STATE = 1
         return
 
-    is_on_bench = False
-    if is_inside("bench"):
-        is_on_bench = True
-    if is_on_bench and is_mouse_down:
+    if is_inside("bench") and is_mouse_down:
         STATE = 4
         return
 
@@ -140,10 +130,7 @@ def state4(is_mouse_down):
     
     screen.blit(images["return"], positions["return"])
     # Check return
-    is_on_return = False
-    if is_inside("return"):
-        is_on_return = True
-    if is_on_return and is_mouse_down:
+    if is_inside("return") and is_mouse_down:
         STATE = 1
         return
 
