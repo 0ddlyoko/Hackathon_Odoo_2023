@@ -4,7 +4,7 @@ import pygame as pg
 # 0 = Login
 # 1 = Logged
 # 2 = Door
-STATE = 1
+STATE = 0
 
 # Initialisation de PyGame
 pg.init()
@@ -79,6 +79,14 @@ def state1(is_mouse_down):
         STATE = 2
         return
     # The Game
+
+    is_on_window = False
+    if is_inside("window"):
+        is_on_window = True
+    if is_on_window and is_mouse_down:
+        STATE = 3
+        return
+    # The Game
     screen.blit(images["background"], (0, 0))
 
     # # Dessin de la clé et de la porte
@@ -102,17 +110,6 @@ def state2(is_mouse_down):
 
 
 def state3(is_mouse_down):
-    global STATE
-    is_on_window = False
-    if is_inside("window"):
-        is_on_window = True
-    if is_on_window and is_mouse_down:
-        STATE = 4
-        return
-    # The Game
-    screen.blit(images["background"], (0, 0))
-
-def state4(is_mouse_down):
     global STATE
     # Draw the door
     screen.blit(images["window"], positions["window_center"])
@@ -170,10 +167,8 @@ while True:
         state1(is_mouse_down)
     if STATE == 2:
         state2(is_mouse_down)
-    if STATE == 1:
+    if STATE == 3:
         state3(is_mouse_down)
-    if STATE == 4:
-        state4(is_mouse_down)
     # Print mouse position
     screen.blit(font.render(f"{mouse_x} - {mouse_y}", True, (255, 255, 255)), (400, 20))
 
