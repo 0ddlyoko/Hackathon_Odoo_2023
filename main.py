@@ -50,6 +50,10 @@ max_char_in_password = 5
 mouse_x, mouse_y = 0, 0
 
 
+def is_inside(element):
+    pos = positions[element]
+    return (pos[0][0] <= mouse_x <= pos[1][0]) and (pos[0][1] <= mouse_y <= pos[1][1])
+
 def state0(is_mouse_down):
     global STATE
     # Check if password is correct
@@ -69,7 +73,7 @@ def state1(is_mouse_down):
     global STATE
     # Check if on door
     is_on_door = False
-    if (positions["door"][0][0] <= mouse_x <= positions["door"][1][0]) and (positions["door"][0][1] <= mouse_y <= positions["door"][1][1]):
+    if is_inside("door"):
         is_on_door = True
     if is_on_door and is_mouse_down:
         STATE = 2
@@ -90,7 +94,7 @@ def state2(is_mouse_down):
     screen.blit(images["return"], positions["return"])
     # Check return
     is_on_return = False
-    if (positions["return"][0][0] <= mouse_x <= positions["return"][1][0]) and (positions["return"][0][1] <= mouse_y <= positions["return"][1][1]):
+    if is_inside("return"):
         is_on_return = True
     if is_on_return and is_mouse_down:
         STATE = 1
@@ -100,7 +104,7 @@ def state2(is_mouse_down):
 def state3(is_mouse_down):
     global STATE
     is_on_window = False
-    if (positions["window"][0][0] < mouse_x < positions["window"][1][0]) and (positions["window"][0][1] < mouse_y < positions["window"][1][1]):
+    if is_inside("window"):
         is_on_window = True
     if is_on_window and is_mouse_down:
         STATE = 4
@@ -109,9 +113,18 @@ def state3(is_mouse_down):
     screen.blit(images["background"], (0, 0))
 
 def state4(is_mouse_down):
+    global STATE
     # Draw the door
     screen.blit(images["window"], positions["window_center"])
-    pass
+    
+    screen.blit(images["return"], positions["return"])
+    # Check return
+    is_on_return = False
+    if is_inside("return"):
+        is_on_return = True
+    if is_on_return and is_mouse_down:
+        STATE = 1
+        return
 
 # Boucle principale
 while True:
