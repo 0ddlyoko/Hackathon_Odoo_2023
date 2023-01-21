@@ -22,6 +22,7 @@ images = {
     "background_blur": pg.transform.scale(pg.transform.scale(background_img, (60, 60)), screen_size),
     "key": pg.transform.scale(pg.image.load("images/Key.png"), (100, 50)),
     "door": pg.transform.scale(pg.image.load("images/Door.png"), (700, 700)),
+    "window": pg.transform.scale(pg.image.load("images/Window.png"), (700, 700)),
 }
 
 font = pg.font.Font(None, 30)
@@ -36,6 +37,8 @@ positions = {
     "key": (50, 70),
     "door": [(500, 430), (600, 640)],
     "door_center": (50, 50),
+    "window": [(145,125), (280, 290)],
+    "window_center":(50,50),
 }
 
 # Password
@@ -77,6 +80,22 @@ def state1(is_mouse_down):
 def state2(is_mouse_down):
     # Draw the door
     screen.blit(images["door"], positions["door_center"])
+    pass
+
+def state3(is_mouse_down):
+    global STATE
+    is_on_window = False
+    if (positions["window"][0][0] < mouse_x < positions["window"][1][0]) and (positions["window"][0][1] < mouse_y < positions["window"][1][1]):
+        is_on_window = True
+    if is_on_window and is_mouse_down:
+        STATE = 4
+        return
+    # The Game
+    screen.blit(images["background"], (0, 0))
+
+def state4(is_mouse_down):
+    # Draw the door
+    screen.blit(images["window"], positions["window_center"])
     pass
 
 # Boucle principale
@@ -123,6 +142,10 @@ while True:
         state1(is_mouse_down)
     if STATE == 2:
         state2(is_mouse_down)
+    if STATE == 1:
+        state3(is_mouse_down)
+    if STATE == 4:
+        state4(is_mouse_down)
     # Print mouse position
     screen.blit(font.render(f"{mouse_x} - {mouse_y}", True, (255, 255, 255)), (400, 20))
 
