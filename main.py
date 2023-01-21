@@ -4,7 +4,7 @@ import pygame as pg
 # 0 = Login
 # 1 = Logged
 # 2 = Door
-STATE = 0
+STATE = 1
 
 # Initialisation de PyGame
 pg.init()
@@ -23,6 +23,7 @@ images = {
     "key": pg.transform.scale(pg.image.load("images/Key.png"), (100, 50)),
     "door": pg.transform.scale(pg.image.load("images/Door.png"), (700, 700)),
     "window": pg.transform.scale(pg.image.load("images/Window.png"), (700, 700)),
+    "return": pg.transform.scale(pg.image.load("images/Return.png"), (70, 50)),
 }
 
 font = pg.font.Font(None, 30)
@@ -39,6 +40,7 @@ positions = {
     "door_center": (50, 50),
     "window": [(145,125), (280, 290)],
     "window_center":(50,50),
+    "return": [(700, 25), (770, 75)],
 }
 
 # Password
@@ -46,6 +48,7 @@ current_password = ""
 max_char_in_password = 5
 
 mouse_x, mouse_y = 0, 0
+
 
 def state0(is_mouse_down):
     global STATE
@@ -61,11 +64,12 @@ def state0(is_mouse_down):
     temp_surface.blit(password, (10, 10))
     screen.blit(temp_surface, (200, 300))
 
+
 def state1(is_mouse_down):
     global STATE
     # Check if on door
     is_on_door = False
-    if (positions["door"][0][0] < mouse_x < positions["door"][1][0]) and (positions["door"][0][1] < mouse_x < positions["door"][1][1]):
+    if (positions["door"][0][0] <= mouse_x <= positions["door"][1][0]) and (positions["door"][0][1] <= mouse_y <= positions["door"][1][1]):
         is_on_door = True
     if is_on_door and is_mouse_down:
         STATE = 2
@@ -77,10 +81,21 @@ def state1(is_mouse_down):
     # if not key_picked_up:
     #     screen.blit(images["key"], positions["key"])
 
+
 def state2(is_mouse_down):
+    global STATE
     # Draw the door
     screen.blit(images["door"], positions["door_center"])
-    pass
+    # Draw the return button
+    screen.blit(images["return"], positions["return"])
+    # Check return
+    is_on_return = False
+    if (positions["return"][0][0] <= mouse_x <= positions["return"][1][0]) and (positions["return"][0][1] <= mouse_y <= positions["return"][1][1]):
+        is_on_return = True
+    if is_on_return and is_mouse_down:
+        STATE = 1
+        return
+
 
 def state3(is_mouse_down):
     global STATE
