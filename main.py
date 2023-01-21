@@ -3,6 +3,7 @@ import pygame as pg
 # State
 # 0 = Login
 # 1 = Logged
+# 2 = Door
 STATE = 0
 
 # Initialisation de PyGame
@@ -20,7 +21,7 @@ images = {
     "background": background_img,
     "background_blur": pg.transform.scale(pg.transform.scale(background_img, (60, 60)), screen_size),
     "key": pg.transform.scale(pg.image.load("images/Key.png"), (100, 50)),
-    "door": pg.transform.scale(pg.image.load("images/Door.png"), (100, 50)),
+    "door": pg.transform.scale(pg.image.load("images/Door.png"), (700, 700)),
 }
 
 font = pg.font.Font(None, 30)
@@ -31,18 +32,52 @@ texts = {
 }
 
 # Position initiale de la clé et de la porte
-
-key_x = 50
-key_y = 50
-door_x = 700
-door_y = 500
-
-# Variable pour stocker l'état de la clé (ramassée ou non)
-key_picked_up = False
+positions = {
+    "key": (50, 70),
+    "door": [(500, 430), (600, 640)],
+    "door_center": (50, 50),
+}
 
 # Password
 current_password = ""
 max_char_in_password = 5
+
+mouse_x, mouse_y = 0, 0
+
+def state0(is_mouse_down):
+    global STATE
+    # Check if password is correct
+    if current_password == "drink":
+        STATE = 1
+        return
+
+    password = current_password + "_" * (max_char_in_password - len(current_password))
+    password = font.render(texts["password"] % password, True, (0, 0, 0))
+    temp_surface = pg.Surface((password.get_size()[0] + 20, password.get_size()[1] + 20))
+    temp_surface.fill((192, 192, 192))
+    temp_surface.blit(password, (10, 10))
+    screen.blit(temp_surface, (200, 300))
+
+def state1(is_mouse_down):
+    global STATE
+    # Check if on door
+    is_on_door = False
+    if (positions["door"][0][0] < mouse_x < positions["door"][1][0]) and (positions["door"][0][1] < mouse_x < positions["door"][1][1]):
+        is_on_door = True
+    if is_on_door and is_mouse_down:
+        STATE = 2
+        return
+    # The Game
+    screen.blit(images["background"], (0, 0))
+
+    # # Dessin de la clé et de la porte
+    # if not key_picked_up:
+    #     screen.blit(images["key"], positions["key"])
+
+def state2(is_mouse_down):
+    # Draw the door
+    screen.blit(images["door"], positions["door_center"])
+    pass
 
 # Boucle principale
 while True:
@@ -67,47 +102,29 @@ while True:
                 if len(current_password) == max_char_in_password:
                     continue
                 current_password += chr(event.key)
-                # print(event.key, key_name)
 
-    # Récupération de la position de la souris
+    # Mouse position
     mouse_x, mouse_y = pg.mouse.get_pos()
 
-    # Vérifie si la souris est sur la clé
-    if (key_x < mouse_x < key_x + 32) and (key_y < mouse_y < key_y + 32):
-        # Vérifie si le bouton est appuyé
-        if is_mouse_down:
-            # Ramasse la clé
-            key_picked_up = True
-            key_x = -100
-            key_y = -100
+    # Check if mouse is on the key
+    # if (positions["key"][0] < mouse_x < positions["key"][0] + 32) and (positions["key"][1] < mouse_y < positions["key"][1] + 32):
+    #     # Vérifie si le bouton est appuyé
+    #     if is_mouse_down:
+    #         # Ramasse la clé
+    #         key_picked_up = True
 
     # UI
-    # Effacement de l'écran
-    screen.fill((255, 255, 255))
+    # Reset screen (+ blur image)
+    screen.blit(images["background_blur"], (0, 0))
+
     if STATE == 0:
-        # Check if password is correct
-        if current_password == "drink":
-            STATE = 1
-        else:
-            screen.blit(images["background_blur"], (0, 0))
-            password = current_password + "_" * (max_char_in_password - len(current_password))
-            password = font.render(texts["password"] % password, True, (0, 0, 0))
-            temp_surface = pg.Surface((password.get_size()[0] + 20, password.get_size()[1] + 20))
-            temp_surface.fill((192, 192, 192))
-            temp_surface.blit(password, (10, 10))
-            screen.blit(temp_surface, (200, 300))
+        state0(is_mouse_down)
     if STATE == 1:
-        screen.blit(images["background"], (0, 0))
-
-        # Dessin de la clé et de la porte
-        if not key_picked_up:
-            screen.blit(images["key"], (key_x, key_y))
-        screen.blit(images["door"], (door_x, door_y))
-
-        # Vérifie si la clé est ramassée et si la souris est sur la porte
-        if key_picked_up and (door_x < mouse_x < door_x + 64) and (door_y < mouse_y < door_y + 64):
-            # Affiche un message de victoire
-            screen.blit(texts["escaped"], (350, 300))
+        state1(is_mouse_down)
+    if STATE == 2:
+        state2(is_mouse_down)
+    # Print mouse position
+    screen.blit(font.render(f"{mouse_x} - {mouse_y}", True, (255, 255, 255)), (400, 20))
 
     # Mise à jour de l'écran
     pg.display.flip()
