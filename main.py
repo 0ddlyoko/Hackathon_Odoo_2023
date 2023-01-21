@@ -8,6 +8,7 @@ import pygame as pg
 # 4 = Bench
 # 5 = Door => Cadena
 # 6 = Nama
+# 7 = END
 STATE = 0
 
 # Initialisation de PyGame
@@ -32,6 +33,8 @@ images = {
     "nama": pg.transform.scale(pg.image.load("images/Nama.jpg"), (700, 700)),
     "cadena_small": pg.transform.scale(pg.image.load("images/Cadena.png"), (40, 40)),
     "cadena_big": pg.transform.scale(pg.image.load("images/Cadena.png"), (700, 700)),
+    "cadena_up": pg.transform.scale(pg.image.load("images/CadenaUp.png"), (50, 50)),
+    "cadena_down": pg.transform.scale(pg.image.load("images/CadenaDown.png"), (50, 50)),
 }
 
 font = pg.font.Font(None, 30)
@@ -55,11 +58,33 @@ positions = {
     "nama_center": (50,50),
     "cadena_small": [(275, 430), (315, 470)],
     "cadena_big": (50, 50),
+    "cadena_up": [
+        [(260, 440), (310, 490)],
+        [(330, 440), (380, 490)],
+        [(400, 440), (450, 490)],
+        [(470, 440), (520, 490)],
+    ],
+    "cadena_letter": [
+        [(278, 535), (328, 585)],
+        [(348, 535), (398, 585)],
+        [(418, 535), (468, 585)],
+        [(488, 535), (538, 585)],
+    ],
+    "cadena_down": [
+        [(260, 600), (310, 650)],
+        [(330, 600), (380, 650)],
+        [(400, 600), (450, 650)],
+        [(470, 600), (520, 650)],
+    ],
 }
 
 # Password
 current_password = ""
 max_char_in_password = 5
+
+# Cadena Password
+cadena_current_password = "ABCD"
+cadena_final_password = "JINX"
 
 mouse_x, mouse_y = 0, 0
 
@@ -154,7 +179,7 @@ def state4(is_mouse_down):
 
 
 def state5(is_mouse_down):
-    global STATE
+    global STATE, cadena_current_password
     # Draw the door
     screen.blit(images["door"], positions["door_center"])
     # Draw the cadenas
@@ -162,10 +187,50 @@ def state5(is_mouse_down):
     screen.blit(images["cadena_big"], positions["cadena_big"])
     # Draw the return button
     screen.blit(images["return"], positions["return"])
-    # Check return
-    if is_inside("return") and is_mouse_down:
-        STATE = 2
-        return
+    # Draw up buttons
+    for up in positions["cadena_up"]:
+        screen.blit(images["cadena_up"], up[0])
+    # Draw letters
+    for count, letter in enumerate(cadena_current_password):
+        screen.blit(font.render(letter, True, (0, 0, 0)), positions["cadena_letter"][count])
+    # Draw down buttons
+    for up in positions["cadena_down"]:
+        screen.blit(images["cadena_down"], up[0])
+    if is_mouse_down:
+        if cadena_current_password == cadena_final_password:
+            STATE = 7
+            return
+        # Check return
+        is_on_return = False
+        if is_inside("return"):
+            STATE = 2
+            return
+        # Check letter up
+        for count, up_pos in enumerate(positions["cadena_up"]):
+            is_up = False
+            if (up_pos[0][0] <= mouse_x <= up_pos[1][0]) and (up_pos[0][1] <= mouse_y <= up_pos[1][1]):
+                is_up = True
+            if is_up:
+                # Increase this letter
+                letter = ord(cadena_current_password[count]) + 1
+                if letter == 91:
+                    letter = 65  # 'A'
+                old_password_lst = list(cadena_current_password)
+                old_password_lst[count] = chr(letter)
+                cadena_current_password = ''.join(old_password_lst)
+        # Check letter down
+        for count, down_pos in enumerate(positions["cadena_down"]):
+            is_down = False
+            if (down_pos[0][0] <= mouse_x <= down_pos[1][0]) and (down_pos[0][1] <= mouse_y <= down_pos[1][1]):
+                is_down = True
+            if is_down:
+                # Increase this letter
+                letter = ord(cadena_current_password[count]) - 1
+                if letter == 64:
+                    letter = 90  # 'Z'
+                old_password_lst = list(cadena_current_password)
+                old_password_lst[count] = chr(letter)
+                cadena_current_password = ''.join(old_password_lst)
 
 
 def state6(is_mouse_down):
@@ -178,6 +243,11 @@ def state6(is_mouse_down):
     if is_inside("return") and is_mouse_down:
         STATE = 3
         return
+
+
+def state7(is_mouse_down):
+    print("END :D")
+    pass
 
 
 # Boucle principale
@@ -232,6 +302,8 @@ while True:
         state5(is_mouse_down)
     elif STATE == 6:
         state6(is_mouse_down)
+    elif STATE == 7:
+        state7(is_mouse_down)
     # Print mouse position
     screen.blit(font.render(f"{mouse_x} - {mouse_y}", True, (255, 255, 255)), (400, 20))
 
