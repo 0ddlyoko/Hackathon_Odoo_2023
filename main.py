@@ -16,6 +16,7 @@ import pygame as pg
 # 10 = Main (2) => Journal
 # 11 = Clock
 # 12 = Cactus Paper
+# 13 = Chandelier
 STATE = 1
 
 # Initialisation de PyGame
@@ -50,6 +51,12 @@ images = {
     "journal": pg.transform.scale(pg.image.load("images/Journal.jpg"), (700, 700)),
     "clock": pg.transform.scale(pg.image.load("images/Clock.jpg"), (700, 700)),
     "cactus_paper": pg.transform.scale(pg.image.load("images/CactusPaper.png"), (700, 700)),
+    "chandelier": pg.transform.scale(pg.image.load("images/Chandelier.png"), (700, 700)),
+    "candle_0": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
+    "candle_1": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
+    "candle_2": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
+    "candle_3": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
+    "candle_4": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
 }
 
 font = pg.font.Font(None, 30)
@@ -104,11 +111,26 @@ positions = {
     "clock_message": (330, 280),
     "cactus_paper": [(590, 530), (650, 720)],
     "cactus_paper_big": (50, 50),
+    "chandelier": [(100, 437),(190, 651)],
+    "chandelier_center": (50, 50),
+    "candle_0" : [(215, 332),(306, 403)],
+    "candle_1" : [(245, 293),(332, 331)],
+    "candle_2" : [(351, 210),(444, 266)],
+    "candle_3" : [(465, 306),(542, 330)],
+    "candle_4" : [(482, 338),(557, 387)],
+    "candle_0_center": (216, 248),
+    "candle_1_center": (236, 214),
+    "candle_2_center": (345, 121),
+    "candle_3_center": (455, 210),
+    "candle_4_center": (473, 240),
 }
 
 # Password
 current_password = ""
 max_char_in_password = 5
+
+# candles
+candles = [False]*5
 
 # Cadena Password
 cadena_current_password = "AAAA"
@@ -169,6 +191,9 @@ def state1(is_mouse_down):
             return
         if is_inside("cactus_paper"):
             clicked_on_cactus = True
+        if is_inside("chandelier"):
+            STATE = 13
+            return
 
 
 def state2(is_mouse_down):
@@ -194,7 +219,7 @@ def state3(is_mouse_down):
     global STATE
     # Draw the door
     screen.blit(images["window"], positions["window_center"])
-    
+
     screen.blit(images["return"], positions["return"])
     if is_mouse_down:
         # Check return
@@ -390,6 +415,25 @@ def state11(is_mouse_down):
                 has_correct_clock = True
 
 
+def state13(is_mouse_down):
+    global STATE
+    screen.blit(images["chandelier"], positions["chandelier_center"])
+    screen.blit(images["return"], positions["return"])
+
+    #candles = [False]*5
+    if is_mouse_down:
+        # Check return
+        if is_inside("return"):
+            STATE = 1
+            return
+        for i in range(5):
+            if is_inside("candle_"+str(i)):
+                candles[i] = is_inside("candle_"+str(i)) != candles[i]
+    
+    for i, c in enumerate(candles):
+        if c: screen.blit(images["candle_"+str(i)], positions["candle_"+str(i)+"_center"])
+
+
 # Boucle principale
 while True:
     # Event
@@ -454,6 +498,8 @@ while True:
         state11(is_mouse_down)
     elif STATE == 12:
         state12(is_mouse_down)
+    elif STATE == 13:
+        state13(is_mouse_down)
     # Print text or position
     display_message = message_to_display if message_to_display != "" else f"{mouse_x} - {mouse_y}"
     font_message = font.render(display_message, True, (255, 255, 255))
