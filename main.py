@@ -138,6 +138,8 @@ max_char_in_password = 5
 
 # candles
 candles = [False]*5
+candles_correct = [True, True, False, True, False]
+blocked = False
 
 # Cadena Password
 cadena_current_password = "AAAA"
@@ -455,7 +457,7 @@ def state12(is_mouse_down):
 
 
 def state13(is_mouse_down):
-    global STATE
+    global STATE, blocked
     screen.blit(images["chandelier"], positions["chandelier_center"])
     screen.blit(images["return"], positions["return"])
 
@@ -465,8 +467,12 @@ def state13(is_mouse_down):
             STATE = 1
             return
         for i in range(5):
-            if is_inside("candle_"+str(i)):
+            if is_inside("candle_"+str(i)) and not blocked:
                 candles[i] = is_inside("candle_"+str(i)) != candles[i]
+                comparison = [ci == cc for ci,cc in zip(candles, candles_correct)]
+                if not False in comparison:
+                    # block
+                    blocked = True
 
     for i, c in enumerate(candles):
         if c: screen.blit(images["candle_"+str(i)], positions["candle_"+str(i)+"_center"])
