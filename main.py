@@ -556,9 +556,10 @@ while True:
 
     pg.mouse.set_cursor(current_cursor)
     # Print text or position
-    display_message = message_to_display if message_to_display != "" else f"{mouse_x} - {mouse_y}"
-    font_message = font.render(display_message, True, (255, 255, 255))
-    screen.blit(font_message, (400 - (font_message.get_size()[0] / 2), 20))
+    if message_to_display != "":
+        # display_message = message_to_display if message_to_display != "" else f"{mouse_x} - {mouse_y}"
+        font_message = font.render(message_to_display, True, (255, 255, 255))
+        screen.blit(font_message, (400 - (font_message.get_size()[0] / 2), 20))
 
     # Mise à jour de l'écran
     pg.display.flip()
