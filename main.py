@@ -457,7 +457,7 @@ def state12(is_mouse_down):
 
 
 def state13(is_mouse_down):
-    global STATE, blocked
+    global STATE, blocked, message_to_display
     screen.blit(images["chandelier"], positions["chandelier_center"])
     screen.blit(images["return"], positions["return"])
 
@@ -465,6 +465,7 @@ def state13(is_mouse_down):
         # Check return
         if is_inside("return"):
             STATE = 1
+            message_to_display = ""
             return
         for i in range(5):
             if is_inside("candle_"+str(i)) and not blocked:
@@ -473,6 +474,10 @@ def state13(is_mouse_down):
                 if not False in comparison:
                     # block
                     blocked = True
+    
+    if blocked:
+
+        message_to_display = "You solved the enigm ! The third word is 'listen' and has an N as its 6th letter..."
 
     for i, c in enumerate(candles):
         if c: screen.blit(images["candle_"+str(i)], positions["candle_"+str(i)+"_center"])
