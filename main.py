@@ -15,9 +15,9 @@ import pygame as pg
 # 9 = Roof
 # 10 = Main (2) => Journal
 # 11 = Clock
-# 12 = Cactus Paper
+# 12 = Box Paper
 # 13 = Chandelier
-STATE = 1
+STATE = 0
 
 # Initialisation de PyGame
 pg.init()
@@ -36,6 +36,7 @@ images = {
     "background_2": pg.transform.scale(pg.image.load("images/Background_2.png"), screen_size),
     "background_2blur": pg.transform.scale(pg.transform.scale(pg.image.load("images/Background_2.png"), (60, 60)), screen_size),
     "background_roof": pg.transform.scale(pg.image.load("images/Roof_2.png"), screen_size),
+    "background_roofblur": pg.transform.scale(pg.transform.scale(pg.image.load("images/Roof_2.png"), (60, 60)), screen_size),
     "key": pg.transform.scale(pg.image.load("images/Key.png"), (100, 50)),
     "door": pg.transform.scale(pg.image.load("images/Door.png"), (700, 700)),
     "window": pg.transform.scale(pg.image.load("images/Window.png"), (700, 700)),
@@ -50,7 +51,7 @@ images = {
     "arrow_right": pg.transform.scale(pg.image.load("images/Arrow_Right.png"), (50, 50)),
     "journal": pg.transform.scale(pg.image.load("images/Journal.jpg"), (700, 700)),
     "clock": pg.transform.scale(pg.image.load("images/Clock.jpg"), (700, 700)),
-    "cactus_paper": pg.transform.scale(pg.image.load("images/CactusPaper.png"), (700, 700)),
+    "paper": pg.transform.scale(pg.image.load("images/Paper.png"), (700, 700)),
     "chandelier": pg.transform.scale(pg.image.load("images/Chandelier.png"), (700, 700)),
     "candle_0": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
     "candle_1": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
@@ -64,6 +65,7 @@ font = pg.font.Font(None, 30)
 texts = {
     "password": "2. It's dangerous to go alone. %s this.",
     "escaped": font.render("You escaped!", True, (0, 0, 0)),
+    "paper": font.render("4. Adieux", True, (0, 0, 0)),
 }
 
 # Position initiale de la clé et de la porte
@@ -103,14 +105,16 @@ positions = {
     "state_8_door": [(260, 330), (350, 500)],
     "roof": [(440, 250), (580, 410)],
     "roof_key": [(640, 490), (800, 660)],
+    "roof_box": [(400, 600), (480, 680)],
+    "roof_box_2": [(0, 570), (250, 710)],
     "state_8_box": [(150, 470), (280, 560)],
     "journal": [(450, 520), (530, 580)],
     "journal_big": (50, 50),
     "clock": [(360, 250), (400, 330)],
     "clock_big": (49, 52),
     "clock_message": (330, 280),
-    "cactus_paper": [(590, 530), (650, 720)],
-    "cactus_paper_big": (50, 50),
+    "paper_big": (50, 50),
+    "paper_text": (200, 150),
     "chandelier": [(100, 437),(190, 651)],
     "chandelier_center": (50, 50),
     "candle_0" : [(215, 332),(306, 403)],
@@ -124,6 +128,9 @@ positions = {
     "candle_3_center": (455, 210),
     "candle_4_center": (473, 240),
 }
+
+# Cursor
+current_cursor = pg.SYSTEM_CURSOR_ARROW
 
 # Password
 current_password = ""
@@ -147,7 +154,15 @@ message_to_display = ""
 
 def is_inside(element):
     pos = positions[element]
-    return (pos[0][0] <= mouse_x <= pos[1][0]) and (pos[0][1] <= mouse_y <= pos[1][1])
+    result = (pos[0][0] <= mouse_x <= pos[1][0]) and (pos[0][1] <= mouse_y <= pos[1][1])
+    return result
+
+def check_cursor(elements):
+    global current_cursor
+    for element in elements:
+        if is_inside(element):
+            current_cursor = pg.SYSTEM_CURSOR_HAND
+            return
 
 
 def state0(is_mouse_down):
@@ -170,6 +185,7 @@ def state1(is_mouse_down):
     screen.blit(images["background"], (0, 0))
     screen.blit(images["arrow_right"], positions["arrow_right"])
     screen.blit(images["arrow_left"], positions["arrow_left"])
+    check_cursor(["door", "window", "arrow_right", "arrow_left", "roof", "clock", "chandelier"])
     if is_mouse_down:
         if is_inside("door"):
             STATE = 2
@@ -189,8 +205,6 @@ def state1(is_mouse_down):
         if is_inside("clock"):
             STATE = 11
             return
-        if is_inside("cactus_paper"):
-            clicked_on_cactus = True
         if is_inside("chandelier"):
             STATE = 13
             return
@@ -204,6 +218,7 @@ def state2(is_mouse_down):
     screen.blit(images["cadena_small"], positions["cadena_small"][0])
     # Draw the return button
     screen.blit(images["return"], positions["return"])
+    check_cursor(["return", "cadena_small"])
     # Check return
     if is_inside("return") and is_mouse_down:
         STATE = 1
@@ -217,10 +232,9 @@ def state2(is_mouse_down):
 
 def state3(is_mouse_down):
     global STATE
-    # Draw the door
     screen.blit(images["window"], positions["window_center"])
-
     screen.blit(images["return"], positions["return"])
+    check_cursor(["return", "bench", "nama"])
     if is_mouse_down:
         # Check return
         if is_inside("return"):
@@ -238,6 +252,7 @@ def state4(is_mouse_down):
     global STATE
     screen.blit(images["bench"], positions["bench_center"])
     screen.blit(images["return"], positions["return"])
+    check_cursor(["return"])
 
     if is_mouse_down:
         if is_inside("return"):
@@ -263,6 +278,7 @@ def state5(is_mouse_down):
     # Draw down buttons
     for up in positions["cadena_down"]:
         screen.blit(images["arrow_down"], up[0])
+    check_cursor(["return"])
     if is_mouse_down:
         if cadena_current_password == cadena_final_password:
             STATE = 7
@@ -305,6 +321,7 @@ def state6(is_mouse_down):
     screen.blit(images["nama"], positions["nama_center"])
     # Draw the return button
     screen.blit(images["return"], positions["return"])
+    check_cursor(["return"])
     if is_mouse_down:
         # Check return
         if is_inside("return"):
@@ -323,6 +340,7 @@ def state8(is_mouse_down):
     screen.blit(images["background_2"], (0, 0))
     screen.blit(images["arrow_left"], positions["arrow_left"])
     screen.blit(images["arrow_right"], positions["arrow_right"])
+    check_cursor(["state_8_door", "state_8_box", "arrow_left", "arrow_right"])
     if not is_inside("state_8_door") and not is_inside("state_8_box"):
         message_to_display = ""
     if is_mouse_down:
@@ -336,9 +354,7 @@ def state8(is_mouse_down):
             message_to_display = "There is nothing there"
             return
         if is_inside("state_8_box"):
-            if has_second_key:
-                message_to_display = "There is nothing more there"
-            elif not has_first_key:
+            if not has_first_key:
                 message_to_display = "It's locked"
             elif is_second_box_locked:
                 is_second_box_locked = False
@@ -346,7 +362,7 @@ def state8(is_mouse_down):
             else:
                 # TODO Add puzzle
                 has_second_key = True
-                message_to_display = "You got a key!"
+                message_to_display = "You got another wooden key! It looks like there is something else"
         if is_inside("journal"):
             STATE = 10
             return
@@ -356,7 +372,8 @@ def state9(is_mouse_down):
     global STATE, has_first_key, message_to_display
     screen.blit(images["background_roof"], (0, 0))
     screen.blit(images["return"], positions["return"])
-    if not is_inside("roof_key"):
+    check_cursor(["roof_key", "roof_box_2", "return"])
+    if not is_inside("roof_key") and not is_inside("roof_box_2"):
         message_to_display = ""
     if is_mouse_down:
         # Check return
@@ -368,7 +385,14 @@ def state9(is_mouse_down):
                 message_to_display = "There is nothing more!"
             else:
                 has_first_key = True
-                message_to_display = "You got a key!"
+                message_to_display = "You got a wooden key!"
+        if is_inside("roof_box_2"):
+            if not has_second_key:
+                message_to_display = "This is locked"
+            else:
+                message_to_display = "A paper is inside it"
+                STATE = 12
+
 
 
 def state10(is_mouse_down):
@@ -376,6 +400,7 @@ def state10(is_mouse_down):
     screen.blit(images["background_2blur"], (0, 0))
     screen.blit(images["journal"], positions["journal_big"])
     screen.blit(images["return"], positions["return"])
+    check_cursor(["return"])
     if is_mouse_down:
         # Check return
         if is_inside("return"):
@@ -388,18 +413,18 @@ hour_hand_angle = math.radians(90)
 correct_clock_answer = (118, 153)
 has_correct_clock = False
 def state11(is_mouse_down):
-    global STATE, minute_hand_angle, hour_hand_angle, has_correct_clock, message_to_display
+    global STATE, minute_hand_angle, hour_hand_angle, has_correct_clock, message_to_display, current_cursor
     screen.blit(images["background_blur"], (0, 0))
     screen.blit(images["return"], positions["return"])
     screen.blit(images["clock"], positions["clock_big"])
     pg.draw.line(screen, (0, 0, 0), center, (400 + math.cos(minute_hand_angle) * 250, 400 + math.sin(minute_hand_angle) * 250), 4)
     pg.draw.line(screen, (0, 0, 0), center, (400 + math.cos(hour_hand_angle) * 200, 400 + math.sin(hour_hand_angle) * 200), 4)
+    current_cursor = pg.SYSTEM_CURSOR_HAND
     if has_correct_clock:
         message_to_display = "After setting correctly the time, a message appears"
         screen.blit(font.render("1. Multijoueur", True, (0, 0, 0)), positions["clock_message"])
 
     if is_mouse_down:
-        # Check return
         if is_inside("return"):
             STATE = 1
             return
@@ -415,12 +440,25 @@ def state11(is_mouse_down):
                 has_correct_clock = True
 
 
+def state12(is_mouse_down):
+    global STATE
+    screen.blit(images["background_roofblur"], (0, 0))
+    screen.blit(images["paper"], positions["paper_big"])
+    screen.blit(images["return"], positions["return"])
+    screen.blit(texts["paper"], positions["paper_text"])
+
+    check_cursor(["return"])
+    if is_mouse_down:
+        if is_inside("return"):
+            STATE = 9
+            return
+
+
 def state13(is_mouse_down):
     global STATE
     screen.blit(images["chandelier"], positions["chandelier_center"])
     screen.blit(images["return"], positions["return"])
 
-    #candles = [False]*5
     if is_mouse_down:
         # Check return
         if is_inside("return"):
@@ -429,13 +467,14 @@ def state13(is_mouse_down):
         for i in range(5):
             if is_inside("candle_"+str(i)):
                 candles[i] = is_inside("candle_"+str(i)) != candles[i]
-    
+
     for i, c in enumerate(candles):
         if c: screen.blit(images["candle_"+str(i)], positions["candle_"+str(i)+"_center"])
 
 
 # Boucle principale
 while True:
+    current_cursor = pg.SYSTEM_CURSOR_ARROW
     # Event
     is_mouse_down = False
     for event in pg.event.get():
@@ -500,6 +539,8 @@ while True:
         state12(is_mouse_down)
     elif STATE == 13:
         state13(is_mouse_down)
+
+    pg.mouse.set_cursor(current_cursor)
     # Print text or position
     display_message = message_to_display if message_to_display != "" else f"{mouse_x} - {mouse_y}"
     font_message = font.render(display_message, True, (255, 255, 255))
