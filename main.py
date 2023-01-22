@@ -58,6 +58,7 @@ images = {
     "candle_2": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
     "candle_3": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
     "candle_4": pg.transform.scale(pg.image.load("images/Candle.png"), (100, 100)),
+    "map": pg.transform.scale(pg.image.load("images/Map.png"), (700, 700)),
 }
 
 font = pg.font.Font(None, 30)
@@ -106,7 +107,7 @@ positions = {
     "roof": [(440, 250), (580, 410)],
     "roof_key": [(640, 490), (800, 660)],
     "roof_box": [(400, 600), (480, 680)],
-    "roof_box_2": [(0, 570), (250, 710)],
+    "roof_box_2": [(0, 500), (250, 710)],
     "state_8_box": [(150, 470), (280, 560)],
     "journal": [(450, 520), (530, 580)],
     "journal_big": (50, 50),
@@ -127,6 +128,7 @@ positions = {
     "candle_2_center": (345, 121),
     "candle_3_center": (455, 210),
     "candle_4_center": (473, 240),
+    "map": (50, 50),
 }
 
 # Cursor
@@ -281,10 +283,10 @@ def state5(is_mouse_down):
     for up in positions["cadena_down"]:
         screen.blit(images["arrow_down"], up[0])
     check_cursor(["return"])
+    if cadena_current_password == cadena_final_password:
+        STATE = 7
+        return
     if is_mouse_down:
-        if cadena_current_password == cadena_final_password:
-            STATE = 7
-            return
         if is_inside("return"):
             STATE = 2
             return
@@ -333,8 +335,9 @@ def state6(is_mouse_down):
 
 
 def state7(is_mouse_down):
-    print("END :D")
-    pass
+    global message_to_display
+    screen.blit(images["map"], positions["map"])
+    message_to_display = "En ouvrant la porte, vous avez découvert la carte au trésor dans un coffre vide"
 
 
 def state8(is_mouse_down):
@@ -342,7 +345,7 @@ def state8(is_mouse_down):
     screen.blit(images["background_2"], (0, 0))
     screen.blit(images["arrow_left"], positions["arrow_left"])
     screen.blit(images["arrow_right"], positions["arrow_right"])
-    check_cursor(["state_8_door", "state_8_box", "arrow_left", "arrow_right"])
+    check_cursor(["state_8_door", "state_8_box", "arrow_left", "arrow_right", "journal"])
     if not is_inside("state_8_door") and not is_inside("state_8_box"):
         message_to_display = ""
     if is_mouse_down:
@@ -396,7 +399,6 @@ def state9(is_mouse_down):
                 STATE = 12
 
 
-
 def state10(is_mouse_down):
     global STATE
     screen.blit(images["background_2blur"], (0, 0))
@@ -417,8 +419,8 @@ has_correct_clock = False
 def state11(is_mouse_down):
     global STATE, minute_hand_angle, hour_hand_angle, has_correct_clock, message_to_display, current_cursor
     screen.blit(images["background_blur"], (0, 0))
-    screen.blit(images["return"], positions["return"])
     screen.blit(images["clock"], positions["clock_big"])
+    screen.blit(images["return"], positions["return"])
     pg.draw.line(screen, (0, 0, 0), center, (400 + math.cos(minute_hand_angle) * 250, 400 + math.sin(minute_hand_angle) * 250), 4)
     pg.draw.line(screen, (0, 0, 0), center, (400 + math.cos(hour_hand_angle) * 200, 400 + math.sin(hour_hand_angle) * 200), 4)
     current_cursor = pg.SYSTEM_CURSOR_HAND
@@ -461,6 +463,7 @@ def state13(is_mouse_down):
     screen.blit(images["chandelier"], positions["chandelier_center"])
     screen.blit(images["return"], positions["return"])
 
+    check_cursor(["return", "candle_0", "candle_1", "candle_2", "candle_3", "candle_4"])
     if is_mouse_down:
         # Check return
         if is_inside("return"):
